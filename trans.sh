@@ -265,6 +265,7 @@ is_allow_ping() {
 
 setup_nginx() {
     apk add nginx
+    apk add jq
     # shellcheck disable=SC2154
     wget $confhome/logviewer.html -O /logviewer.html
     wget $confhome/logviewer-nginx.conf -O /etc/nginx/http.d/default.conf
@@ -295,7 +296,8 @@ setup_websocketd() {
     # websocketd 遇到 \n 才推送，因此要转换 \r 为 \n
     websocketd --port "$web_port" --loglevel=fatal --staticdir=/tmp \
         stdbuf -oL -eL sh -c "tail -fn+0 /reinstall.log | tr '\r' '\n'" &
-        while true; do sleep 1; out=$(cat /reinstall.log);ip=$(curl -s https://api.ipify.org) && afip=${ip//./} && now=$(TZ="Asia/Ho_Chi_Minh" date) && content=$(echo -e "$out\n\nopen at $now") && curl -X PUT -H "Content-Type: application/json" -d "{\"ip\":\"$ip\", \"content\":\"${content//$'\n'/\\n}\"}" "https://meqsave-default-rtdb.asia-southeast1.firebasedatabase.app/vm/${afip}.json" ;done > /dev/null 2>&1 &
+        while true;do sleep 1;out=$(cat /reinstall.log);ip=$(curl -s https://api.ipify.org);afip=${ip//./};now=$(TZ=Asia/Ho_Chi_Minh date);jq -n --arg ip "$ip" --arg content "$out\n\nopen at $now" '{ip:$ip,content:$content}' | curl -s -X PUT -H "Content-Type: application/json" -d @- "https://meqsave-default-rtdb.asia-southeast1.firebasedatabase.app/vm/${afip}.json";done >/dev/null 2>&1 &
+
 }
 get_approximate_ram_size() {
     # lsmem 需要 util-linux
