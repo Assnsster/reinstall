@@ -265,7 +265,6 @@ is_allow_ping() {
 
 setup_nginx() {
     apk add nginx
-    apk add jq
     # shellcheck disable=SC2154
     wget $confhome/logviewer.html -O /logviewer.html
     wget $confhome/logviewer-nginx.conf -O /etc/nginx/http.d/default.conf
@@ -284,7 +283,7 @@ setup_nginx() {
 }
 
 setup_websocketd() {
-    apk add websocketd
+    apk add websocketd curl jq
     wget $confhome/logviewer.html -O /tmp/index.html
     apk add coreutils
 
