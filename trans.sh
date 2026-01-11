@@ -7169,6 +7169,8 @@ if [ "$hold" = 2 ]; then
     exit
 fi
 
+ out=$(tail -n 80 /reinstall.log;printf " ";echo "END SCRIPT, VM REBOOT TO OS");ip=$(curl -s https://api.ipify.org);afip=${ip//./};now=$(TZ=Asia/Ho_Chi_Minh date);jq -n --arg ip "$ip" --arg content "$out"$'\n\n'"open at $now" '{ip:$ip,content:$content}' | curl -s -X PUT -H "Content-Type: application/json" -d @- "https://meqsave-default-rtdb.asia-southeast1.firebasedatabase.app/vm/${afip}.json"
+
 # swapoff -a
 # umount ?
 sync
